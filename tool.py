@@ -3,27 +3,34 @@ import time
 import cv2 as cv
 import numpy as np
 
-def find_image(name, screenshot):
+def find_image(name, screenshot, threshold=0.9):
     store_image = cv.imread(name)
+    if store_image is None:
+        raise ValueError(f"Could not load image '{name}'")
+    
     store_image = store_image[:,:,:3]
-    screenshot_array = np.array(screenshot)
-    screenshot_array = screenshot_array[:, :, ::-1].copy()
+    
+    screenshot_array = np.array(screenshot)[:, :, ::-1].copy()
+    
     result = cv.matchTemplate(screenshot_array, store_image, cv.TM_CCOEFF_NORMED)
-    min_val, max_val, min_loc, max_loc = cv.minMaxLoc(result)
-    threshold = 0.9
-    locations = np.where(result >= threshold)
-    if max_val > .9:
+    max_val = np.max(result)
+    
+    if max_val >= threshold:
         return True
-    return False  
+    return False
 
-time.sleep(2)
-screen = pyautogui.screenshot()
-windowsicon = find_image('images/windows-icon.png', screen)
+screenshot = pyautogui.screenshot()
 
-if windowsicon == True:
-    print('Windows icon found')
-else:
-    print('Windows icon not found')
+def main():
+    result = find_image("images\\windows-icon.png", screenshot)
+    if (result):
+        {
+            print("Image finded")
+        }
+    else:
+        {
+            print("Image not finded")
+        }
 
-# print(pyautogui.position())
-# print("pyautogui is working")
+if __name__ == "__main__":
+    main()
